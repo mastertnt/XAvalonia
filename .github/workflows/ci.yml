@@ -50,22 +50,32 @@ jobs:
             const token = await core.getIDToken('api.nuget.org')
             core.setOutput('token', token)
 
-      - name: Debug OIDC token claims
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          TOKEN='${{ steps.oidc.outputs.token }}'
-          PAYLOAD=$(echo "$TOKEN" | cut -d'.' -f2 | awk '{ n=length($0)%4; if(n==2) $0=$0"=="; if(n==3) $0=$0"="; print }' | base64 -d 2>/dev/null)
-          echo "=== OIDC Token Claims ==="
-          echo "$PAYLOAD" | python -m json.tool 2>/dev/null | grep -E '"iss"|"aud"|"repository"|"workflow"|"ref"|"environment"|"job_workflow_ref"'
-
       - name: Push to NuGet.org
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
+        env:
+          OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         run: |
+          # Exchange the OIDC token for a short-lived NuGet API key
+          NUGET_KEY=$(python -c "
+          import urllib.request, urllib.error, json, os, sys
+          req = urllib.request.Request(
+              'https://api.nuget.org/v1/gettrustedpublishertoken',
+              data=json.dumps({'oidcToken': os.environ['OIDC_TOKEN']}).encode(),
+              headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
+              method='POST'
+          )
+          try:
+              with urllib.request.urlopen(req) as r:
+                  print(json.load(r)['apiKey'])
+          except urllib.error.HTTPError as e:
+              print(f'Exchange failed: {e.code} {e.read().decode()}', file=sys.stderr)
+              sys.exit(1)
+          ")
+
           for pkg in ./nupkg/*.nupkg; do
             dotnet nuget push "$pkg" \
-              --api-key "${{ steps.oidc.outputs.token }}" \
+              --api-key "$NUGET_KEY" \
               --source https://api.nuget.org/v3/index.json \
               --skip-duplicate
           done
