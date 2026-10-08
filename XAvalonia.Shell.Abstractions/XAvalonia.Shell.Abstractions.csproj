@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageDescription>Plugin contract library for XAvalonia — interfaces and contribution models that plugins reference. Zero dependency on framework internals.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Required for IServiceCollection in IPlugin.RegisterServices -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
+    <!-- Required for IImage / IBrush used by IIconProvider -->
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+  </ItemGroup>
+
+</Project>

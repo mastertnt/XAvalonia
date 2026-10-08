@@ -1,0 +1,94 @@
+## ─── Build outputs ──────────────────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+## ─── NuGet ───────────────────────────────────────────────────────────────────
+*.nupkg
+*.snupkg
+!**/[Pp]ackages.lock.json
+.nuget/
+packages/
+
+## ─── Visual Studio ───────────────────────────────────────────────────────────
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+
+## ─── Rider / JetBrains ───────────────────────────────────────────────────────
+.idea/
+*.sln.iml
+
+## ─── VS Code ─────────────────────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+## ─── .NET / MSBuild ──────────────────────────────────────────────────────────
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*_wpftmp.csproj
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+## ─── Publish profiles ────────────────────────────────────────────────────────
+**/Properties/PublishProfiles/
+
+## ─── OS ──────────────────────────────────────────────────────────────────────
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+
+## ─── Secrets / Environment ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12

@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="XAvalonia.Bootstrap/XAvalonia.Bootstrap.csproj" />
+  <Project Path="XAvalonia.MainWindow/XAvalonia.MainWindow.csproj" />
+  <Project Path="Samples/XAvalonia.SampleApp/XAvalonia.Sample.csproj" />
+  <Project Path="xAvalonia.Shell.Abstractions/XAvalonia.Shell.Abstractions.csproj" />
+  <Project Path="Plugins/XAvalonia.PluginBrowser/XAvalonia.PluginBrowser.csproj" />
+  <Project Path="Samples/XAvalonia.Sample.Views/XAvalonia.Sample.Views.csproj" />
+  <Project Path="Plugins/XAvalonia.LogViewer/XAvalonia.LogViewer.csproj" />
+  <Project Path="Plugins/XAvalonia.IconProviders/XAvalonia.IconProviders.csproj" />
+</Solution>

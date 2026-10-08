@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="XAvalonia.Bootstrap.App"
+             xmlns:local="using:XAvalonia.Bootstrap"
+             xmlns:themes="using:Material.Styles.Themes"
+             RequestedThemeVariant="Dark">
+
+  <Application.DataTemplates>
+    <local:ViewLocator />
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <!-- FluentTheme en premier : fournit les SystemControl* brushes dont DockFluentTheme a besoin -->
+    <FluentTheme />
+    <StyleInclude Source="avares://Dock.Avalonia.Themes.Fluent/DockFluentTheme.axaml" />
+    <!-- MaterialTheme après : surcharge les styles des contrôles standard (boutons, menus, inputs) -->
+    <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="Grey" />
+    <StyleInclude Source="avares://XAvalonia.Bootstrap/Assets/AppStyles.axaml" />
+  </Application.Styles>
+
+</Application>

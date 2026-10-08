@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.Sample.Views"
+             x:Class="XAvalonia.Sample.Views.DocumentView"
+             x:DataType="vm:DocumentViewModel">
+
+  <TextBox Text="{Binding Content}"
+           AcceptsReturn="True"
+           AcceptsTab="True"
+           TextWrapping="Wrap"
+           FontFamily="Consolas,Menlo,monospace"
+           FontSize="13"
+           Margin="4"
+           BorderThickness="0"
+           Background="Transparent" />
+
+</UserControl>

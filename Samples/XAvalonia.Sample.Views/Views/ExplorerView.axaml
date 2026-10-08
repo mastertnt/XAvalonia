@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.Sample.Views"
+             x:Class="XAvalonia.Sample.Views.ExplorerView"
+             x:DataType="vm:ExplorerViewModel">
+
+  <DockPanel>
+    <TextBlock DockPanel.Dock="Top" Text="Fichiers du projet" Classes="panelHeader" />
+    <TreeView ItemsSource="{Binding Nodes}">
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate x:DataType="vm:FileNode" ItemsSource="{Binding Children}">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <Image Source="{Binding Icon}" Width="16" Height="16"
+                   IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+          </StackPanel>
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+    </TreeView>
+  </DockPanel>
+
+</UserControl>

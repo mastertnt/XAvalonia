@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>XAvalonia.LogViewer</AssemblyName>
+    <RootNamespace>XAvalonia.LogViewer</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>XAvalonia log viewer plugin — Output panel that displays log messages at Debug/Info/Warning/Error severity levels.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+    <PackageReference Include="Dock.Avalonia" Version="11.3.11.22" />
+    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.3.11.22" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\xAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

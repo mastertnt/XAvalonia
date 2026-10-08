@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.Sample.Views"
+             x:Class="XAvalonia.Sample.Views.PropertiesView"
+             x:DataType="vm:PropertiesViewModel">
+
+  <DockPanel>
+    <TextBlock DockPanel.Dock="Top" Text="Propriétés" Classes="panelHeader" />
+    <StackPanel Spacing="6" Margin="8">
+      <TextBlock Text="Élément sélectionné :" Opacity="0.7" FontSize="11" />
+      <TextBlock Text="{Binding SelectedItem}" FontWeight="SemiBold" />
+      <Separator />
+      <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Nom :"     Classes="propLabel" />
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="—"         Classes="propValue" />
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Type :"    Classes="propLabel" />
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="—"         Classes="propValue" />
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Taille :"  Classes="propLabel" />
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="—"         Classes="propValue" />
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Modifié :" Classes="propLabel" />
+        <TextBlock Grid.Row="3" Grid.Column="1" Text="—"         Classes="propValue" />
+      </Grid>
+    </StackPanel>
+  </DockPanel>
+
+</UserControl>

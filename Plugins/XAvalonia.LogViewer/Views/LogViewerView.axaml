@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.LogViewer"
+             x:Class="XAvalonia.LogViewer.LogViewerView"
+             x:DataType="vm:LogViewerViewModel">
+
+  <DockPanel>
+
+    <!-- Filter / action bar -->
+    <Border DockPanel.Dock="Top"
+            BorderBrush="{DynamicResource SystemBaseLowColor}"
+            BorderThickness="0,0,0,1"
+            Padding="6,3">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+
+        <ToggleButton Content="DBG"
+                      IsChecked="{Binding ShowDebug}"
+                      Foreground="#888888"
+                      Padding="8,2"
+                      FontFamily="Consolas,Menlo,monospace"
+                      FontSize="11" />
+
+        <ToggleButton Content="INF"
+                      IsChecked="{Binding ShowInfo}"
+                      Foreground="#D4D4D4"
+                      Padding="8,2"
+                      FontFamily="Consolas,Menlo,monospace"
+                      FontSize="11" />
+
+        <ToggleButton Content="WRN"
+                      IsChecked="{Binding ShowWarning}"
+                      Foreground="#FFA500"
+                      Padding="8,2"
+                      FontFamily="Consolas,Menlo,monospace"
+                      FontSize="11" />
+
+        <ToggleButton Content="ERR"
+                      IsChecked="{Binding ShowError}"
+                      Foreground="#FF4444"
+                      Padding="8,2"
+                      FontFamily="Consolas,Menlo,monospace"
+                      FontSize="11" />
+
+        <Button Content="Clear"
+                Command="{Binding ClearCommand}"
+                Margin="8,0,0,0"
+                Padding="8,2"
+                FontSize="11" />
+
+      </StackPanel>
+    </Border>
+
+    <!-- Log entries -->
+    <ListBox x:Name="LogList"
+             ItemsSource="{Binding FilteredEntries}"
+             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+             Background="Transparent"
+             BorderThickness="0">
+
+      <ListBox.ItemContainerTheme>
+        <ControlTheme TargetType="ListBoxItem">
+          <Setter Property="Padding" Value="8,1" />
+          <Setter Property="Focusable" Value="False" />
+        </ControlTheme>
+      </ListBox.ItemContainerTheme>
+
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:LogEntryViewModel">
+          <TextBlock Text="{Binding FormattedMessage}"
+                     Foreground="{Binding LevelBrush}"
+                     FontFamily="Consolas,Menlo,monospace"
+                     FontSize="12"
+                     TextWrapping="NoWrap" />
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+
+    </ListBox>
+
+  </DockPanel>
+
+</UserControl>

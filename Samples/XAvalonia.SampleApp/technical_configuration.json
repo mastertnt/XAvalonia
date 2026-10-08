@@ -1,0 +1,8 @@
+{
+  "pluginsDirectory": "D:\\Projects\\CSharp\\XAvalonia",
+
+  "Avalonia.MainWindow": {
+    "name": "MySampleApplication",
+    "iconUri": null
+  }
+}

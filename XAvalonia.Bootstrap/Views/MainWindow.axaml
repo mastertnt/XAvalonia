@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:XAvalonia.Bootstrap.ViewModels"
+        xmlns:menuVm="using:XAvalonia.Bootstrap.ViewModels.Menu"
+        xmlns:sbVm="using:XAvalonia.Bootstrap.ViewModels.StatusBar"
+        xmlns:imaging="using:Avalonia.Media.Imaging"
+        xmlns:dock="using:Dock.Avalonia.Controls"
+        x:Class="XAvalonia.Bootstrap.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Width="1280" Height="800"
+        MinWidth="800" MinHeight="500"
+        Title="{Binding WindowTitle}"
+        Icon="{Binding WindowIcon}"
+        ExtendClientAreaToDecorationsHint="False">
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="imaging:Bitmap">
+      <Image Source="{Binding}" Width="16" Height="16" />
+    </DataTemplate>
+  </Window.DataTemplates>
+
+  <Window.Resources>
+
+    <ControlTheme x:Key="ShellMenuItemTheme" TargetType="MenuItem"
+                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                  x:DataType="menuVm:MenuItemViewModel">
+      <Setter Property="Header"       Value="{Binding Header}" />
+      <Setter Property="Command"      Value="{Binding Command}" />
+      <Setter Property="InputGesture" Value="{Binding InputGesture}" />
+      <Setter Property="IsEnabled"    Value="{Binding !IsSeparator}" />
+      <Setter Property="Icon"         Value="{Binding Icon}" />
+    </ControlTheme>
+
+    <ControlTheme x:Key="ShellTopMenuTheme" TargetType="MenuItem"
+                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                  x:DataType="menuVm:MenuViewModel">
+      <Setter Property="Header"             Value="{Binding Header}" />
+      <Setter Property="ItemsSource"        Value="{Binding Items}" />
+      <Setter Property="ItemContainerTheme" Value="{StaticResource ShellMenuItemTheme}" />
+    </ControlTheme>
+
+  </Window.Resources>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- MENU BAR -->
+    <Menu Grid.Row="0"
+          ItemsSource="{Binding Menus}"
+          ItemContainerTheme="{StaticResource ShellTopMenuTheme}" />
+
+    <!-- DOCK CONTROL -->
+    <dock:DockControl Grid.Row="1"
+                      Layout="{Binding Layout}"
+                      InitializeLayout="True" />
+
+    <!-- STATUS BAR -->
+    <Border Grid.Row="2" Classes="statusBar">
+      <Grid ColumnDefinitions="*,Auto">
+
+        <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftStatusItems}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sbVm:StatusBarItemViewModel">
+              <StackPanel Orientation="Horizontal" Spacing="4" Classes="statusItem">
+                <Image Source="{Binding Icon}"
+                       Width="14" Height="14"
+                       IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <TextBlock Text="{Binding Text}" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding RightStatusItems}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sbVm:StatusBarItemViewModel">
+              <StackPanel Orientation="Horizontal" Spacing="4" Classes="statusItem statusRight">
+                <Image Source="{Binding Icon}"
+                       Width="14" Height="14"
+                       IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <TextBlock Text="{Binding Text}" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>

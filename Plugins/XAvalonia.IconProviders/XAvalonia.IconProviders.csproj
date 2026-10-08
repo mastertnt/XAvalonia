@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>XAvalonia.IconProviders</AssemblyName>
+    <RootNamespace>XAvalonia.IconProviders</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>XAvalonia icon providers — Material icon set implementation for IIconProvider.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="IconPacks.Avalonia.Material" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\XAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

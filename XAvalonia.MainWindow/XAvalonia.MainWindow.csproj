@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Avalonia.MainWindow</AssemblyName>
+    <RootNamespace>Avalonia.MainWindow</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>XAvalonia default docking layout plugin — Explorer, Documents, Properties, and Output panels with File/View/Help menus.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
+    <PackageReference Include="Dock.Avalonia" Version="11.3.11.22" />
+    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.3.11.22" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Dock.Serializer.Newtonsoft" Version="11.3.11.22" />
+  </ItemGroup>
+
+  <!-- Exclude nested sub-projects from this project's compilation -->
+  <ItemGroup>
+    <Compile Remove="Avalonia.Shell.Abstractions\**" />
+    <Compile Remove="Avalonia.Shell.Abstractions\**" />
+    <Compile Remove="Plugins\PluginBrowser\**" />
+    <Compile Remove="Plugins\XAvalonia.LogViewer\**" />
+    <Compile Remove="Samples\XAvalonia.Sample.Views\**" />
+    <Compile Remove="XAvalonia.Bootstrap\**" />
+    <Compile Remove="Samples\XAvalonia.SampleApp\**" />
+    <AvaloniaXaml Remove="Plugins\PluginBrowser\**" />
+    <AvaloniaXaml Remove="Plugins\XAvalonia.LogViewer\**" />
+    <AvaloniaXaml Remove="Samples\XAvalonia.Sample.Views\**" />
+    <AvaloniaXaml Remove="XAvalonia.Bootstrap\**" />
+    <AvaloniaXaml Remove="Samples\XAvalonia.SampleApp\**" />
+    <None Remove="Plugins\PluginBrowser\**" />
+    <None Remove="Plugins\XAvalonia.LogViewer\**" />
+    <None Remove="Samples\XAvalonia.Sample.Views\**" />
+    <None Remove="XAvalonia.Bootstrap\**" />
+    <None Remove="Samples\XAvalonia.SampleApp\**" />
+    <EmbeddedResource Remove="Plugins\PluginBrowser\**" />
+    <EmbeddedResource Remove="Plugins\XAvalonia.LogViewer\**" />
+    <EmbeddedResource Remove="Samples\XAvalonia.Sample.Views\**" />
+    <EmbeddedResource Remove="XAvalonia.Bootstrap\**" />
+    <EmbeddedResource Remove="Samples\XAvalonia.SampleApp\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\xAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+  </ItemGroup>
+
+  <!--
+    Post-build: copy the plugin DLL (and its private NuGet dependencies) into the
+    XAvalonia.Sample Plugins/ output folder so PluginLoader can discover it at runtime.
+  -->
+  <Target Name="CopyToShellPlugins" AfterTargets="Build">
+    <PropertyGroup>
+      <ShellPluginsDir>$(MSBuildThisFileDirectory)..\Samples\XAvalonia.SampleApp\bin\$(Configuration)\$(TargetFramework)\Plugins\</ShellPluginsDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(ShellPluginsDir)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(ShellPluginsDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ReferenceCopyLocalPaths)" DestinationFolder="$(ShellPluginsDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

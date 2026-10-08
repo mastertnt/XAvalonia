@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>Karen Liliou</Authors>
+    <Company>Karen Liliou</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/YOUR_ORG/xavalonia</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/YOUR_ORG/xavalonia</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>avalonia;desktop;shell;plugin;docking;framework;cross-platform</PackageTags>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <!-- Always use the project filename as the NuGet package ID, regardless of AssemblyName -->
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <!-- Include XML doc in the package -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!-- Embed sources for debuggability -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <!-- Bundle the root README into every NuGet package -->
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
