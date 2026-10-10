@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
 using XAvalonia.Shell.Abstractions.Shell;
 #pragma warning disable CS8714 // generic constraint nullable
@@ -20,7 +21,7 @@ public sealed class PluginManager : IPluginManager
         Timeout = TimeSpan.FromSeconds(10)
     };
 
-    private readonly IReadOnlyList<IPlugin> mPlugins;
+    private readonly List<IPlugin> mPlugins;
     private readonly Dictionary<string, Version?> mVersionCache = new Dictionary<string, Version?>();
     private readonly Dictionary<string, IReadOnlyList<Type>> mConsumedServicesByPluginId =
         new Dictionary<string, IReadOnlyList<Type>>();
@@ -29,7 +30,7 @@ public sealed class PluginManager : IPluginManager
     /// <param name="pPlugins">Plugins discovered by <see cref="PluginLoader"/>.</param>
     public PluginManager(IReadOnlyList<IPlugin> pPlugins)
     {
-        mPlugins = pPlugins;
+        mPlugins = new List<IPlugin>(pPlugins);
     }
 
     /// <inheritdoc/>
@@ -46,11 +47,16 @@ public sealed class PluginManager : IPluginManager
             : Array.Empty<Type>();
     }
 
-    /// <summary>Phase 1 — calls <see cref="IPlugin.RegisterServices"/> on every plugin.</summary>
+    /// <summary>
+    /// Phase 1 — calls <see cref="IPlugin.RegisterServices"/> on every plugin.
+    /// A plugin that throws is logged, its partial registrations are rolled back and it is removed
+    /// from <see cref="Plugins"/>, so the remaining plugins and the shell keep running.
+    /// </summary>
     internal void RegisterAllServices(IServiceCollection pServices)
     {
-        foreach (IPlugin lPlugin in mPlugins)
+        foreach (IPlugin lPlugin in mPlugins.ToList())
         {
+            int lRegistrationCount = pServices.Count;
             try
             {
                 Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' loaded");
@@ -58,8 +64,13 @@ public sealed class PluginManager : IPluginManager
             }
             catch (Exception lEx)
             {
-                Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' RegisterServices failed: {lEx.Message}");
-                throw;
+                while (pServices.Count > lRegistrationCount)
+                {
+                    pServices.RemoveAt(pServices.Count - 1);
+                }
+
+                mPlugins.Remove(lPlugin);
+                Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' RegisterServices failed, plugin disabled: {lEx}");
             }
         }
     }
@@ -70,7 +81,7 @@ public sealed class PluginManager : IPluginManager
         ITechnicalConfiguration?  lTechConfig  = pServiceProvider.GetService<ITechnicalConfiguration>();
         IUserConfiguration?       lUserConfig  = pServiceProvider.GetService<IUserConfiguration>();
 
-        foreach (IPlugin lPlugin in mPlugins)
+        foreach (IPlugin lPlugin in mPlugins.ToList())
         {
             try
             {
@@ -83,12 +94,27 @@ public sealed class PluginManager : IPluginManager
             }
             catch (Exception lEx)
             {
-                Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' Initialize failed: {lEx.Message}");
-                throw;
+                mPlugins.Remove(lPlugin);
+                mConsumedServicesByPluginId.Remove(lPlugin.Id);
+                Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' Initialize failed, plugin disabled: {lEx}");
+                TryLogError(pServiceProvider, $"[PluginManager] Plugin '{lPlugin.Name}' ({lPlugin.Id}) failed to initialize and was disabled: {lEx.Message}");
             }
         }
 
         AllPluginsLoaded?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Forwards an error to the ILogService when a plugin provides one; never throws.
+    private static void TryLogError(IServiceProvider pServiceProvider, string pMessage)
+    {
+        try
+        {
+            pServiceProvider.GetService<ILogService>()?.LogError(pMessage);
+        }
+        catch (Exception lEx)
+        {
+            Trace.WriteLine($"[PluginManager] ILogService unavailable: {lEx.Message}");
+        }
     }
 
     // Populates properties decorated with TAttr from the plugin's section in the given config provider.
