@@ -35,7 +35,7 @@ IPluginManager lPluginManager = pServiceManager.RequestService<IPluginManager>()
 
 ### `Plugins`
 
-All plugins loaded at startup, in file-system discovery order:
+All plugins loaded at startup, in dependency order (each plugin follows the plugins it depends on, see `DependsOnPlugin` / `DependsOnService`):
 
 ```csharp
 IReadOnlyList<IPlugin> lPlugins = lPluginManager.Plugins;

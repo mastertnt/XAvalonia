@@ -29,6 +29,9 @@ jobs:
       - name: Build
         run: dotnet build AvaloniaShell.slnx --no-restore -c Release
 
+      - name: Test
+        run: dotnet test AvaloniaShell.slnx --no-build -c Release
+
       - name: Pack
         if: startsWith(github.ref, 'refs/tags/')
         run: dotnet pack AvaloniaShell.slnx --no-build -c Release -o ./nupkg -p:Version=${{ github.ref_name }}

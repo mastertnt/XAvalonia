@@ -20,7 +20,11 @@ public static class PluginLoader
     /// Returns an empty list when the directory does not exist.
     /// </summary>
     /// <param name="pDirectory">Absolute path of the plugins directory.</param>
-    /// <returns>All plugin instances found, in file-system order.</returns>
+    /// <returns>
+    /// All plugin instances found, ordered so that each plugin follows its dependencies
+    /// (see <see cref="PluginDependencySorter"/>).
+    /// </returns>
+    /// <exception cref="PluginDependencyException">The plugins' dependencies cannot be satisfied.</exception>
     public static IReadOnlyList<IPlugin> LoadFromDirectory(string pDirectory)
     {
         if (!Directory.Exists(pDirectory))
@@ -32,7 +36,10 @@ public static class PluginLoader
         List<IPlugin> lPlugins = new List<IPlugin>();
         HashSet<string> lSeenFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string lFile in Directory.EnumerateFiles(pDirectory, "*.dll", SearchOption.AllDirectories))
+        IEnumerable<string> lFiles = Directory.EnumerateFiles(pDirectory, "*.dll", SearchOption.AllDirectories)
+            .OrderBy(pFile => pFile, StringComparer.Ordinal);
+
+        foreach (string lFile in lFiles)
         {
             string lFileName = Path.GetFileName(lFile);
             if (!lSeenFileNames.Add(lFileName))
@@ -45,8 +52,10 @@ public static class PluginLoader
             lPlugins.AddRange(lFound);
         }
 
-        Trace.WriteLine($"[PluginLoader] Loaded {lPlugins.Count} plugin(s) from '{pDirectory}'.");
-        return lPlugins;
+        IReadOnlyList<IPlugin> lSorted = PluginDependencySorter.Sort(lPlugins);
+        Trace.WriteLine($"[PluginLoader] Loaded {lSorted.Count} plugin(s) from '{pDirectory}': "
+            + string.Join(", ", lSorted.Select(pPlugin => pPlugin.Id)));
+        return lSorted;
     }
 
     // Loads one candidate assembly into its own PluginLoadContext and instantiates its plugins.

@@ -13,6 +13,7 @@ namespace PluginBrowser;
 /// Opens the Plugin Browser as a docked document tab in the central area.
 /// Discovered automatically by <c>PluginLoader</c> at shell startup.
 /// </summary>
+[DependsOnService(typeof(ILogService))]
 public sealed class PluginBrowserPlugin : IPlugin
 {
     private IPluginManager? mPluginManager;
