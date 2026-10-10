@@ -12,7 +12,7 @@ public interface IPluginManager
     /// </summary>
     event EventHandler? AllPluginsLoaded;
 
-    /// <summary>All plugins discovered and loaded at startup, in load order.</summary>
+    /// <summary>All plugins discovered and loaded at startup, in load order. Plugins that failed to load, register or initialize are excluded.</summary>
     IReadOnlyList<IPlugin> Plugins { get; }
 
     /// <summary>
