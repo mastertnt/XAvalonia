@@ -3,6 +3,7 @@ using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Icons;
 using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Selection;
 using XAvalonia.Shell.Abstractions.Splashscreen;
 using XAvalonia.Shell.Abstractions.ToolPanels;
 
@@ -64,20 +65,21 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         lLog?.LogDebug($"[{Name}] IToolPanelService acquired.");
 
         IIconManager lIconManager = pServiceManager.RequestService<IIconManager>();
+        ISelectionManager lSelectionManager = pServiceManager.RequestService<ISelectionManager>();
 
         lSplash?.ShowMessage("Registering sample tool panels…");
 
         lToolPanelService.RegisterPanel(new ToolPanelContribution(
             pId: "explorer",
             pTitle: "Explorateur",
-            pViewModel: new ExplorerViewModel(lIconManager),
+            pViewModel: new ExplorerViewModel(lIconManager, lSelectionManager),
             pAlignment: ToolPanelAlignment.Left));
         lLog?.LogDebug($"[{Name}] Registered tool panel 'explorer'.");
 
         lToolPanelService.RegisterPanel(new ToolPanelContribution(
             pId: "properties",
             pTitle: "Propriétés",
-            pViewModel: new PropertiesViewModel(),
+            pViewModel: new PropertiesViewModel(lSelectionManager),
             pAlignment: ToolPanelAlignment.Right));
         lLog?.LogDebug($"[{Name}] Registered tool panel 'properties'.");
 

@@ -130,6 +130,7 @@ Every resolved service is automatically recorded and shown in the Plugin Browser
 | `IMainWindowService` | Shell.Abstractions | Control window title, icon, lifecycle |
 | `IPluginManager` | Shell.Abstractions | Enumerate plugins, check updates |
 | `ILogService` | Shell.Abstractions | Emit and receive log messages |
+| `ISelectionManager` | Shell.Abstractions | Share the current selection through global and local contexts |
 
 ---
 

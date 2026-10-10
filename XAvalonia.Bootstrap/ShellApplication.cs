@@ -9,6 +9,7 @@ using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Icons;
 using XAvalonia.Shell.Abstractions.Menus;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Selection;
 using XAvalonia.Shell.Abstractions.Shell;
 using XAvalonia.Shell.Abstractions.StatusBar;
 using XAvalonia.Shell.Abstractions.ToolPanels;
@@ -62,6 +63,10 @@ public static class ShellApplication
         // StatusBarService: same singleton exposed under both concrete and interface keys.
         lServices.AddSingleton<StatusBarService>();
         lServices.AddSingleton<IStatusBarService>(pSp => pSp.GetRequiredService<StatusBarService>());
+
+        // SelectionManager: global and local selection contexts shared between plugins.
+        lServices.AddSingleton<SelectionManager>();
+        lServices.AddSingleton<ISelectionManager>(pSp => pSp.GetRequiredService<SelectionManager>());
 
         // TechnicalConfigurationService: exposes technical_configuration.json sections to plugins.
         JsonDocument lTechDocument = ReadJsonFile("technical_configuration.json");
