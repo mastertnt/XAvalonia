@@ -23,6 +23,7 @@ namespace Avalonia.MainWindow;
 /// together with the File, View and Help menus and the default status bar items.
 /// Also implements <see cref="ILayoutPersistence"/> to save and restore the dock layout.
 /// </summary>
+[DependsOnService(typeof(ILogService))]
 [ConfigurationSection("Avalonia.MainWindow")]
 public sealed class AvaloniaMainWindowPlugin : IPlugin, ILayoutPersistence, IMainWindowService
 {

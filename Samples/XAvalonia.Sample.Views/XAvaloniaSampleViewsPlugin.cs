@@ -11,6 +11,7 @@ namespace XAvalonia.Sample.Views;
 /// Plugin that contributes the Explorer, Properties, and Output tool panels
 /// to the shell's docked panel areas via <see cref="IToolPanelService"/>.
 /// </summary>
+[DependsOnService(typeof(ILogService))]
 public sealed class XAvaloniaSampleViewsPlugin : IPlugin
 {
     /// <inheritdoc/>
