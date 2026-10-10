@@ -3,6 +3,7 @@ using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Icons;
 using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Splashscreen;
 using XAvalonia.Shell.Abstractions.ToolPanels;
 
 namespace XAvalonia.Sample.Views;
@@ -40,6 +41,9 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         ILogService? lLog = pServiceManager.TryRequestService<ILogService>();
         lLog?.LogInfo($"[{Name}] Loading plugin…");
 
+        ISplashscreen? lSplash = pServiceManager.TryRequestService<ISplashscreen>();
+        lSplash?.ShowMessage("Opening sample documents…");
+
         lLog?.LogDebug($"[{Name}] Requesting IDocumentService…");
         IDocumentService lDocumentService = pServiceManager.RequestService<IDocumentService>();
         lLog?.LogDebug($"[{Name}] IDocumentService acquired.");
@@ -59,6 +63,8 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         lLog?.LogDebug($"[{Name}] IToolPanelService acquired.");
 
         IIconManager lIconManager = pServiceManager.RequestService<IIconManager>();
+
+        lSplash?.ShowMessage("Registering sample tool panels…");
 
         lToolPanelService.RegisterPanel(new ToolPanelContribution(
             pId: "explorer",

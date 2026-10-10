@@ -4,5 +4,11 @@
   "Avalonia.MainWindow": {
     "name": "MySampleApplication",
     "iconUri": null
+  },
+
+  "Splashscreen": {
+    "enabled": true,
+    "imagePath": "Assets/splash.png",
+    "minimumDisplayTime": 1500
   }
 }

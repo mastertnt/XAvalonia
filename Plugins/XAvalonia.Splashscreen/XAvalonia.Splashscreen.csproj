@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>XAvalonia.Splashscreen</AssemblyName>
+    <RootNamespace>XAvalonia.Splashscreen</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>XAvalonia splash screen plugin — displays an image defined in the technical configuration and status messages pushed by other plugins during startup.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\xAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
