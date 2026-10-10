@@ -331,6 +331,25 @@ public IReadOnlyList<Type> ProvidedServices => new[] { typeof(IMyService) };
 
 Other plugins can then call `pServiceManager.RequestService<IMyService>()`.
 
+### Loading order
+
+Plugins are registered (Phase 1) and initialized (Phase 2) in dependency order. Declare what your plugin needs on its class:
+
+```csharp
+// Initialize after every plugin that lists IMyService in its ProvidedServices.
+// A service no plugin provides (e.g. a shell service) adds no constraint.
+[DependsOnService(typeof(IMyService))]
+
+// Initialize after the plugin with this Id. Startup fails if it is not installed…
+[DependsOnPlugin("com.mycompany.core")]
+
+// …unless the dependency is optional.
+[DependsOnPlugin("com.mycompany.extras", Optional = true)]
+public sealed class MyConsumerPlugin : IPlugin { … }
+```
+
+Plugins with no constraint between them keep their discovery order (assembly paths sorted ordinally). Startup throws a `PluginDependencyException` when two plugins share an `Id`, a required plugin is missing, or the dependencies form a cycle (the message shows the cycle, e.g. `'a' -> 'b' -> 'a'`).
+
 ---
 
 ## Step 9 — View resolution (naming convention)

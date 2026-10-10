@@ -8,4 +8,5 @@
   <Project Path="Plugins/XAvalonia.LogViewer/XAvalonia.LogViewer.csproj" />
   <Project Path="Plugins/XAvalonia.IconProviders/XAvalonia.IconProviders.csproj" />
   <Project Path="Plugins/XAvalonia.Splashscreen/XAvalonia.Splashscreen.csproj" />
+  <Project Path="Tests/XAvalonia.Bootstrap.Tests/XAvalonia.Bootstrap.Tests.csproj" />
 </Solution>
