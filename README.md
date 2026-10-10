@@ -188,7 +188,8 @@ XAvalonia/
 ├── XAvalonia.SampleApp/            ← Minimal entry-point app
 └── Plugins/
     ├── XAvalonia.PluginBrowser/    ← Browse & update plugins
-    └── XAvalonia.LogViewer/        ← Output panel
+    ├── XAvalonia.LogViewer/        ← Output panel
+    └── XAvalonia.Splashscreen/     ← Startup splash screen
 ```
 
 ---
