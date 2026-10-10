@@ -6,7 +6,7 @@
 
   <DockPanel>
     <TextBlock DockPanel.Dock="Top" Text="Fichiers du projet" Classes="panelHeader" />
-    <TreeView ItemsSource="{Binding Nodes}">
+    <TreeView ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode}">
       <TreeView.ItemTemplate>
         <TreeDataTemplate x:DataType="vm:FileNode" ItemsSource="{Binding Children}">
           <StackPanel Orientation="Horizontal" Spacing="4">
