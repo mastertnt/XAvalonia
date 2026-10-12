@@ -48,7 +48,7 @@
     <EmbeddedResource Remove="Samples\XAvalonia.SampleApp\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\xAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+    <ProjectReference Include="..\XAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
   </ItemGroup>
 
   <!--
