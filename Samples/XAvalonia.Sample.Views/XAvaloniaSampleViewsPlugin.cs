@@ -5,6 +5,7 @@ using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
 using XAvalonia.Shell.Abstractions.Selection;
 using XAvalonia.Shell.Abstractions.Splashscreen;
+using XAvalonia.Shell.Abstractions.StatusBar;
 using XAvalonia.Shell.Abstractions.ToolPanels;
 
 namespace XAvalonia.Sample.Views;
@@ -16,6 +17,8 @@ namespace XAvalonia.Sample.Views;
 [DependsOnService(typeof(ILogService))]
 public sealed class XAvaloniaSampleViewsPlugin : IPlugin
 {
+    private const string SelectionStatusItemId = "sample.selection";
+
     /// <inheritdoc/>
     public string Id => "org.avaloniaui.shell.sample-views";
 
@@ -90,6 +93,16 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
             pAlignment: ToolPanelAlignment.Bottom));
         lLog?.LogDebug($"[{Name}] Registered tool panel 'output'.");
 
+        // Selection example: the active selection (e.g. the explorer node) is shown in the status bar.
+        IStatusBarService lStatusBar = pServiceManager.RequestService<IStatusBarService>();
+        lStatusBar.RegisterItem(new StatusBarItemContribution(SelectionStatusItemId, FormatSelection(null), StatusBarItemAlignment.Left, 300));
+        lSelectionManager.ActiveSelectionChanged += (_, pArgs) =>
+            lStatusBar.UpdateItem(SelectionStatusItemId, FormatSelection(pArgs.Context.PrimaryItem));
+        lLog?.LogDebug($"[{Name}] Registered status bar item '{SelectionStatusItemId}'.");
+
         lLog?.LogInfo($"[{Name}] Plugin loaded successfully.");
     }
+
+    private static string FormatSelection(object? pItem)
+        => pItem is FileNode lNode ? $"Sélection : {lNode.Name}" : "Sélection : (aucune)";
 }
