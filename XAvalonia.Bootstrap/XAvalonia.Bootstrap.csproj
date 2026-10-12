@@ -31,6 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="XAvalonia.Bootstrap.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\xAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
   </ItemGroup>
 
