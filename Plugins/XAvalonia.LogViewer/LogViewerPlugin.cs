@@ -18,6 +18,13 @@ public sealed class LogViewerPlugin : IPlugin
         Minimum = 100, Maximum = 100000)]
     public int MaxEntries { get; set; } = 5000;
 
+    /// <summary>Lowest severity shown when the Log panel opens. Populated from <c>user_configuration.json → LogViewer → minimumLevel</c>.</summary>
+    [UserConfiguration("minimumLevel",
+        DisplayName = "Default Log Level",
+        Description = "Lowest severity shown by default in the Log panel; lower levels can still be shown with the panel's filters.",
+        Order = 10)]
+    public LogLevel MinimumLevel { get; set; } = LogLevel.Debug;
+
     /// <inheritdoc/>
     public string Id => "org.avaloniaui.shell.log-viewer";
 
@@ -53,6 +60,7 @@ public sealed class LogViewerPlugin : IPlugin
         lLog.LogDebug($"[{Name}] IToolPanelService acquired.");
 
         LogViewerViewModel lViewModel = new LogViewerViewModel(lLog) { MaxEntries = MaxEntries };
+        lViewModel.ShowLevelsFrom(MinimumLevel);
         lToolPanelService.RegisterPanel(new ToolPanelContribution(
             pId: "log-viewer",
             pTitle: "Log",
@@ -66,9 +74,15 @@ public sealed class LogViewerPlugin : IPlugin
         {
             lUserConfiguration.SettingChanged += (_, pArgs) =>
             {
-                if (pArgs.Setting.PluginId == Id)
+                if (pArgs.Setting.PluginId != Id)
                 {
-                    lViewModel.MaxEntries = MaxEntries;
+                    return;
+                }
+
+                lViewModel.MaxEntries = MaxEntries;
+                if (pArgs.Setting.Key == "minimumLevel")
+                {
+                    lViewModel.ShowLevelsFrom(MinimumLevel);
                 }
             };
         }

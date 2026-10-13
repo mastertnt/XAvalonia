@@ -60,6 +60,15 @@ public sealed class LogViewerViewModel : Tool
         }
     }
 
+    /// <summary>Shows the entries of <paramref name="pMinimumLevel"/> and above, hides the lower levels.</summary>
+    public void ShowLevelsFrom(LogLevel pMinimumLevel)
+    {
+        ShowDebug   = pMinimumLevel <= LogLevel.Debug;
+        ShowInfo    = pMinimumLevel <= LogLevel.Info;
+        ShowWarning = pMinimumLevel <= LogLevel.Warning;
+        ShowError   = true;
+    }
+
     /// <summary>Whether Debug-level entries are shown.</summary>
     public bool ShowDebug
     {
