@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
+using XAvalonia.Bootstrap.Services;
 using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
 using XAvalonia.Shell.Abstractions.Shell;
@@ -79,14 +80,14 @@ public sealed class PluginManager : IPluginManager
     internal void InitializeAll(IServiceProvider pServiceProvider)
     {
         ITechnicalConfiguration?  lTechConfig  = pServiceProvider.GetService<ITechnicalConfiguration>();
-        IUserConfiguration?       lUserConfig  = pServiceProvider.GetService<IUserConfiguration>();
+        UserConfigurationService? lUserConfig  = pServiceProvider.GetService<UserConfigurationService>();
 
         foreach (IPlugin lPlugin in mPlugins.ToList())
         {
             try
             {
                 if (lTechConfig  is not null) BindConfiguration<TechConfigurationAttribute>(lPlugin, lTechConfig);
-                if (lUserConfig  is not null) BindConfiguration<UserConfigurationAttribute>(lPlugin, lUserConfig);
+                lUserConfig?.RegisterPlugin(lPlugin);
 
                 PluginServiceManager lServiceManager = new PluginServiceManager(pServiceProvider);
                 lPlugin.Initialize(lServiceManager);
@@ -96,6 +97,7 @@ public sealed class PluginManager : IPluginManager
             {
                 mPlugins.Remove(lPlugin);
                 mConsumedServicesByPluginId.Remove(lPlugin.Id);
+                lUserConfig?.UnregisterPlugin(lPlugin.Id);
                 Trace.WriteLine($"[PluginManager] '{lPlugin.Id}' Initialize failed, plugin disabled: {lEx}");
                 TryLogError(pServiceProvider, $"[PluginManager] Plugin '{lPlugin.Name}' ({lPlugin.Id}) failed to initialize and was disabled: {lEx.Message}");
             }
@@ -123,49 +125,25 @@ public sealed class PluginManager : IPluginManager
         where TAttr : ConfigurationKeyAttribute
     {
         Type lType = pPlugin.GetType();
-
-        ConfigurationSectionAttribute? lSectionAttr = lType.GetCustomAttribute<ConfigurationSectionAttribute>();
-        string lSectionKey = lSectionAttr is not null
-            ? lSectionAttr.SectionName
-            : (lType.Name.EndsWith("Plugin", StringComparison.Ordinal) ? lType.Name[..^6] : lType.Name);
-
-        JsonElement? lSection = pConfig.GetSection(lSectionKey);
+        JsonElement? lSection = pConfig.GetSection(ConfigurationBinding.GetSectionKey(lType));
         if (lSection is null)
         {
             return;
         }
 
-        foreach (PropertyInfo lProp in lType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach ((PropertyInfo lProp, TAttr lAttr) in ConfigurationBinding.GetBoundProperties<TAttr>(lType))
         {
-            TAttr? lAttr = lProp.GetCustomAttribute<TAttr>();
-            if (lAttr is null || !lProp.CanWrite)
-            {
-                continue;
-            }
-
             if (!lSection.Value.TryGetProperty(lAttr.Key, out JsonElement lValue))
             {
                 continue;
             }
 
-            object? lConverted = ConvertJsonValue(lProp.PropertyType, lValue);
+            object? lConverted = ConfigurationBinding.ConvertJsonValue(lProp.PropertyType, lValue);
             if (lConverted is not null)
             {
                 lProp.SetValue(pPlugin, lConverted);
             }
         }
-    }
-
-    private static object? ConvertJsonValue(Type pType, JsonElement pValue)
-    {
-        if (pType == typeof(string))   return pValue.GetString();
-        if (pType == typeof(int))      return pValue.GetInt32();
-        if (pType == typeof(double))   return pValue.GetDouble();
-        if (pType == typeof(bool))     return pValue.GetBoolean();
-        if (pType == typeof(int?))     return pValue.ValueKind == JsonValueKind.Null ? null : (object)pValue.GetInt32();
-        if (pType == typeof(double?))  return pValue.ValueKind == JsonValueKind.Null ? null : (object)pValue.GetDouble();
-        if (pType == typeof(bool?))    return pValue.ValueKind == JsonValueKind.Null ? null : (object)pValue.GetBoolean();
-        return null;
     }
 
     /// <inheritdoc/>

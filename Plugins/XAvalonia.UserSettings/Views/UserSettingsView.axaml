@@ -1,0 +1,169 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.UserSettings.ViewModels"
+             x:Class="XAvalonia.UserSettings.Views.UserSettingsView"
+             x:DataType="vm:UserSettingsViewModel">
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </Style>
+    <!-- Modified indicator: accent bar on the left of the row, as in VS Code. -->
+    <Style Selector="Border.setting">
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Padding" Value="12,8,12,10" />
+      <Setter Property="CornerRadius" Value="2" />
+    </Style>
+    <Style Selector="Border.setting.modified">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="Border.setting:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundListLowBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- Search bar -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="12,12,12,6">
+      <TextBox Grid.Column="0"
+               Text="{Binding SearchText}"
+               Watermark="Search settings">
+        <TextBox.InnerRightContent>
+          <Button Command="{Binding ClearSearchCommand}"
+                  IsVisible="{Binding HasSearchText}"
+                  Background="Transparent" Padding="6,2"
+                  ToolTip.Tip="Clear search">
+            <TextBlock Text="✕" FontSize="12" />
+          </Button>
+        </TextBox.InnerRightContent>
+      </TextBox>
+      <ToggleButton Grid.Column="1" Margin="8,0,0,0"
+                    IsChecked="{Binding ShowModifiedOnly}"
+                    ToolTip.Tip="Show only the settings set in the user configuration file">
+        <TextBlock Text="Modified" VerticalAlignment="Center" />
+      </ToggleButton>
+      <TextBlock Grid.Column="2" Classes="secondary" Margin="12,0,0,0"
+                 VerticalAlignment="Center"
+                 Text="{Binding ResultSummary}" />
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="220,4,*" Margin="0,6,0,0">
+
+      <!-- Category tree -->
+      <TreeView Grid.Column="0"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding SelectedCategory}"
+                Margin="8,0,0,0">
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem" x:DataType="vm:SettingCategoryViewModel">
+            <Setter Property="IsExpanded" Value="True" />
+            <Setter Property="IsVisible" Value="{Binding HasMatches}" />
+          </Style>
+        </TreeView.Styles>
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate x:DataType="vm:SettingCategoryViewModel"
+                            ItemsSource="{Binding Children}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="1" Classes="secondary" Margin="8,0,0,0"
+                         Text="{Binding MatchCount}" />
+            </Grid>
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+      </TreeView>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+      <!-- Settings list -->
+      <Grid Grid.Column="2">
+        <TextBlock Classes="secondary" Margin="16"
+                   IsVisible="{Binding HasNoResults}"
+                   Text="{Binding EmptyMessage}" />
+
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding VisibleSettings}" Margin="4,0,12,12">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:SettingViewModel">
+                <Border Classes="setting" Classes.modified="{Binding IsModified}" Margin="0,0,0,4">
+                  <StackPanel Spacing="4">
+
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <StackPanel Orientation="Horizontal" ToolTip.Tip="{Binding FullKey}">
+                        <TextBlock Text="{Binding Breadcrumb}" />
+                        <TextBlock Text=": " />
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                      </StackPanel>
+                      <Button Grid.Column="2"
+                              Command="{Binding ResetCommand}"
+                              IsVisible="{Binding IsModified}"
+                              Background="Transparent" Padding="4,0" Margin="0,-4"
+                              ToolTip.Tip="Reset to default">
+                        <TextBlock Text="↺" FontSize="14" />
+                      </Button>
+                    </Grid>
+
+                    <TextBlock Classes="secondary"
+                               Text="{Binding Description}"
+                               IsVisible="{Binding ShowDescription}"
+                               TextWrapping="Wrap" />
+
+                    <ContentControl Content="{Binding}" Margin="0,2,0,0">
+                      <ContentControl.DataTemplates>
+
+                        <DataTemplate x:DataType="vm:BoolSettingViewModel">
+                          <CheckBox IsChecked="{Binding Value}"
+                                    IsThreeState="{Binding IsThreeState}">
+                            <TextBlock Text="{Binding CheckBoxLabel}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                          </CheckBox>
+                        </DataTemplate>
+
+                        <DataTemplate x:DataType="vm:NumberSettingViewModel">
+                          <NumericUpDown Value="{Binding Value}"
+                                         Minimum="{Binding Minimum}"
+                                         Maximum="{Binding Maximum}"
+                                         FormatString="{Binding FormatString}"
+                                         Increment="1"
+                                         Width="180" HorizontalAlignment="Left" />
+                        </DataTemplate>
+
+                        <DataTemplate x:DataType="vm:TextSettingViewModel">
+                          <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                                   MaxWidth="480" HorizontalAlignment="Stretch" />
+                        </DataTemplate>
+
+                        <DataTemplate x:DataType="vm:ChoiceSettingViewModel">
+                          <ComboBox ItemsSource="{Binding Choices}"
+                                    SelectedItem="{Binding Value}"
+                                    MinWidth="180" />
+                        </DataTemplate>
+
+                      </ContentControl.DataTemplates>
+                    </ContentControl>
+
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Grid>
+
+    <!-- Footer: file location and save errors -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="12,6,12,8">
+      <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasError}">
+        <TextBlock Text="⚠" VerticalAlignment="Center" Foreground="OrangeRed" />
+        <TextBlock Text="{Binding ErrorMessage}" Foreground="OrangeRed"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+      <TextBlock Grid.Column="1" Classes="secondary" FontSize="11"
+                 VerticalAlignment="Center"
+                 Text="{Binding FilePath}" ToolTip.Tip="User configuration file" />
+    </Grid>
+
+  </Grid>
+
+</UserControl>

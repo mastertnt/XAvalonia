@@ -78,7 +78,8 @@ public static class ShellApplication
         lServices.AddSingleton<ITechnicalConfiguration>(pSp => pSp.GetRequiredService<TechnicalConfigurationService>());
 
         // UserConfigurationService: exposes user_configuration.json sections to plugins.
-        UserConfigurationService lUserConfig = new UserConfigurationService(ReadJsonFile("user_configuration.json"));
+        UserConfigurationService lUserConfig = new UserConfigurationService(
+            Path.Combine(AppContext.BaseDirectory, "user_configuration.json"));
         lServices.AddSingleton(lUserConfig);
         lServices.AddSingleton<IUserConfiguration>(pSp => pSp.GetRequiredService<UserConfigurationService>());
 

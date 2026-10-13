@@ -44,6 +44,7 @@ public static void Main(string[] pArgs) => ShellApplication.Run(pArgs);
 | 📋 **Menu contributions** | Add top-level menus and items with commands, icons, and keyboard shortcuts |
 | 📊 **Status bar** | Left/right aligned items, updated at runtime |
 | ⚙️ **Configuration** | Declarative JSON binding via `[TechConfiguration]` / `[UserConfiguration]` attributes |
+| 🎛️ **Settings editor** | VS Code-style editor (File › Settings…) for every `[UserConfiguration]` property: category tree, search, live save |
 | 🔌 **NuGet update checks** | Plugins can expose a `NuGetPackageId` for live update detection |
 | 📦 **DI built-in** | `Microsoft.Extensions.DependencyInjection` throughout |
 | 🎨 **Fluent theme** | Avalonia Fluent Dark theme out of the box |
@@ -189,6 +190,7 @@ XAvalonia/
 └── Plugins/
     ├── XAvalonia.PluginBrowser/    ← Browse & update plugins
     ├── XAvalonia.LogViewer/        ← Output panel
+    ├── XAvalonia.UserSettings/     ← Settings editor (user configuration)
     └── XAvalonia.Splashscreen/     ← Startup splash screen
 ```
 

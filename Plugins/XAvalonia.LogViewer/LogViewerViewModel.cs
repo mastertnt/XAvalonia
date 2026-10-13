@@ -21,6 +21,7 @@ public sealed class LogViewerViewModel : Tool
     private bool mShowInfo    = true;
     private bool mShowWarning = true;
     private bool mShowError   = true;
+    private int mMaxEntries   = 5000;
 
     /// <summary>Initializes the view model and subscribes to the log service.</summary>
     /// <param name="pLogService">The log service to observe.</param>
@@ -47,6 +48,17 @@ public sealed class LogViewerViewModel : Tool
 
     /// <summary>Clears all entries from the log.</summary>
     public ICommand ClearCommand { get; }
+
+    /// <summary>Maximum number of entries kept; the oldest ones are discarded first.</summary>
+    public int MaxEntries
+    {
+        get => mMaxEntries;
+        set
+        {
+            mMaxEntries = Math.Max(1, value);
+            Dispatcher.UIThread.Post(TrimEntries);
+        }
+    }
 
     /// <summary>Whether Debug-level entries are shown.</summary>
     public bool ShowDebug
@@ -102,6 +114,8 @@ public sealed class LogViewerViewModel : Tool
             {
                 FilteredEntries.Add(lEntry);
             }
+
+            TrimEntries();
         });
     }
 
@@ -112,6 +126,23 @@ public sealed class LogViewerViewModel : Tool
             mAllEntries.Clear();
             FilteredEntries.Clear();
         });
+    }
+
+    // Drops the oldest entries beyond MaxEntries, from both the full and the filtered lists.
+    private void TrimEntries()
+    {
+        int lExcess = mAllEntries.Count - mMaxEntries;
+        if (lExcess <= 0)
+        {
+            return;
+        }
+
+        HashSet<LogEntryViewModel> lRemoved = new HashSet<LogEntryViewModel>(mAllEntries.Take(lExcess));
+        mAllEntries.RemoveRange(0, lExcess);
+        while (FilteredEntries.Count > 0 && lRemoved.Contains(FilteredEntries[0]))
+        {
+            FilteredEntries.RemoveAt(0);
+        }
     }
 
     private void RefreshFilter()
