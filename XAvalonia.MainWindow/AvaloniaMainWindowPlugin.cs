@@ -30,8 +30,11 @@ public sealed class AvaloniaMainWindowPlugin : IPlugin, ILayoutPersistence, IMai
     // These events satisfy IMainWindowService; this plugin's DI registration is overridden
     // by the bootstrap's MainWindowService, so these are never actually raised at runtime.
 #pragma warning disable CS0067
+    /// <inheritdoc/>
     public event EventHandler? Loaded;
+    /// <inheritdoc/>
     public event EventHandler? AboutToQuit;
+    /// <inheritdoc/>
     public event EventHandler? Closed;
 #pragma warning restore CS0067
 
