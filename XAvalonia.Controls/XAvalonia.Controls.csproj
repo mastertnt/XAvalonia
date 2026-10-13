@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>XAvalonia.Controls</AssemblyName>
+    <RootNamespace>XAvalonia.Controls</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <PackageDescription>Reusable XAvalonia controls shared by the shell and plugins, such as the PropertyInspector.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

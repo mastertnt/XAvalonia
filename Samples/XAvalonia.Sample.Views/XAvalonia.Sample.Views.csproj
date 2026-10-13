@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\XAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+    <ProjectReference Include="..\..\XAvalonia.Controls\XAvalonia.Controls.csproj" />
   </ItemGroup>
 
 </Project>

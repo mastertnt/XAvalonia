@@ -6,12 +6,12 @@
 
   <TextBox Text="{Binding Content}"
            AcceptsReturn="True"
-           AcceptsTab="True"
-           TextWrapping="Wrap"
-           FontFamily="Consolas,Menlo,monospace"
-           FontSize="13"
+           AcceptsTab="{Binding EditorSettings.AcceptsTab}"
+           TextWrapping="{Binding EditorSettings.WordWrap}"
+           FontFamily="{Binding EditorSettings.FontFamily}"
+           FontSize="{Binding EditorSettings.FontSize}"
            Margin="4"
            BorderThickness="0"
-           Background="Transparent" />
+           Background="{Binding EditorSettings.Background}" />
 
 </UserControl>

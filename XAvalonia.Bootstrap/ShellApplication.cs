@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using XAvalonia.Bootstrap.Plugins;
 using XAvalonia.Bootstrap.Services;
 using XAvalonia.Bootstrap.ViewModels;
+using XAvalonia.Controls;
 using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Icons;
 using XAvalonia.Shell.Abstractions.Menus;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Properties;
 using XAvalonia.Shell.Abstractions.Selection;
 using XAvalonia.Shell.Abstractions.Shell;
 using XAvalonia.Shell.Abstractions.StatusBar;
@@ -68,6 +70,10 @@ public static class ShellApplication
         lServices.AddSingleton<SelectionManager>();
         lServices.AddSingleton<ISelectionManager>(pSp => pSp.GetRequiredService<SelectionManager>());
 
+        // PropertyEditorRegistry: editors used by PropertyInspector controls, extensible by plugins.
+        lServices.AddSingleton<PropertyEditorRegistry>();
+        lServices.AddSingleton<IPropertyEditorRegistry>(pSp => pSp.GetRequiredService<PropertyEditorRegistry>());
+
         // TechnicalConfigurationService: exposes technical_configuration.json sections to plugins.
         JsonDocument lTechDocument = ReadJsonFile("technical_configuration.json");
         string lRawPluginsDir = lTechDocument.RootElement.TryGetProperty("pluginsDirectory", out JsonElement lDirEl)
@@ -78,7 +84,8 @@ public static class ShellApplication
         lServices.AddSingleton<ITechnicalConfiguration>(pSp => pSp.GetRequiredService<TechnicalConfigurationService>());
 
         // UserConfigurationService: exposes user_configuration.json sections to plugins.
-        UserConfigurationService lUserConfig = new UserConfigurationService(ReadJsonFile("user_configuration.json"));
+        UserConfigurationService lUserConfig = new UserConfigurationService(
+            Path.Combine(AppContext.BaseDirectory, "user_configuration.json"));
         lServices.AddSingleton(lUserConfig);
         lServices.AddSingleton<IUserConfiguration>(pSp => pSp.GetRequiredService<UserConfigurationService>());
 

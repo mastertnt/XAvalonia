@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:XAvalonia.Controls"
+             x:Class="XAvalonia.Controls.PropertyInspector">
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </Style>
+    <!-- Modified marker: accent bar on the left of the row, as in VS Code. -->
+    <Style Selector="Border.property">
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Padding" Value="12,8,12,10" />
+      <Setter Property="CornerRadius" Value="2" />
+    </Style>
+    <Style Selector="Border.property.modified">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="Border.property:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundListLowBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid>
+    <TextBlock x:Name="PART_EmptyText" Classes="secondary" Margin="16" TextWrapping="Wrap" />
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl x:Name="PART_Rows" Margin="4,0,12,12">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="local:PropertyInspectorRow">
+            <Border Classes="property" Classes.modified="{Binding Item.IsModified}" Margin="0,0,0,4">
+              <StackPanel Spacing="4">
+
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <StackPanel Orientation="Horizontal" ToolTip.Tip="{Binding Item.Key}">
+                    <TextBlock Text="{Binding Breadcrumb}" />
+                    <TextBlock Text=": " />
+                    <TextBlock Text="{Binding Item.DisplayName}" FontWeight="SemiBold" />
+                  </StackPanel>
+                  <Button Grid.Column="2"
+                          Command="{Binding ResetCommand}"
+                          IsVisible="{Binding Item.IsModified}"
+                          Background="Transparent" Padding="4,0" Margin="0,-4"
+                          ToolTip.Tip="Reset to default">
+                    <TextBlock Text="↺" FontSize="14" />
+                  </Button>
+                </Grid>
+
+                <TextBlock Classes="secondary"
+                           Text="{Binding Item.Description}"
+                           IsVisible="{Binding ShowDescription}"
+                           TextWrapping="Wrap" />
+
+                <ContentControl Content="{Binding Editor}" Margin="0,2,0,0" />
+
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+
+</UserControl>

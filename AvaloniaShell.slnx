@@ -3,10 +3,12 @@
   <Project Path="XAvalonia.MainWindow/XAvalonia.MainWindow.csproj" />
   <Project Path="Samples/XAvalonia.SampleApp/XAvalonia.Sample.csproj" />
   <Project Path="XAvalonia.Shell.Abstractions/XAvalonia.Shell.Abstractions.csproj" />
+  <Project Path="XAvalonia.Controls/XAvalonia.Controls.csproj" />
   <Project Path="Plugins/XAvalonia.PluginBrowser/XAvalonia.PluginBrowser.csproj" />
   <Project Path="Samples/XAvalonia.Sample.Views/XAvalonia.Sample.Views.csproj" />
   <Project Path="Plugins/XAvalonia.LogViewer/XAvalonia.LogViewer.csproj" />
   <Project Path="Plugins/XAvalonia.IconProviders/XAvalonia.IconProviders.csproj" />
   <Project Path="Plugins/XAvalonia.Splashscreen/XAvalonia.Splashscreen.csproj" />
+  <Project Path="Plugins/XAvalonia.UserSettings/XAvalonia.UserSettings.csproj" />
   <Project Path="Tests/XAvalonia.Bootstrap.Tests/XAvalonia.Bootstrap.Tests.csproj" />
 </Solution>

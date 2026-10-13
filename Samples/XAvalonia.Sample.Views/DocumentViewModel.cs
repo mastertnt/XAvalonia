@@ -12,8 +12,10 @@ public sealed class DocumentViewModel : Document
     /// <summary>Initializes a document with its title and initial content.</summary>
     /// <param name="pTitle">Tab title.</param>
     /// <param name="pContent">Initial text content.</param>
-    public DocumentViewModel(string pTitle, string pContent)
+    /// <param name="pEditorSettings">Editor settings shared by all documents.</param>
+    public DocumentViewModel(string pTitle, string pContent, EditorSettings pEditorSettings)
     {
+        EditorSettings = pEditorSettings;
         Title   = pTitle;
         Id      = pTitle;
         Content = pContent;
@@ -24,6 +26,9 @@ public sealed class DocumentViewModel : Document
             CanClose = true
         };
     }
+
+    /// <summary>Editor settings shared by all documents.</summary>
+    public EditorSettings EditorSettings { get; }
 
     /// <summary>Editable text content bound to the document view.</summary>
     public string Content

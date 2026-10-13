@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:XAvalonia.UserSettings.ViewModels"
+             xmlns:controls="using:XAvalonia.Controls"
+             x:Class="XAvalonia.UserSettings.Views.UserSettingsView"
+             x:DataType="vm:UserSettingsViewModel">
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.secondary">
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- Search bar -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="12,12,12,6">
+      <TextBox Grid.Column="0"
+               Text="{Binding SearchText}"
+               Watermark="Search settings">
+        <TextBox.InnerRightContent>
+          <Button Command="{Binding ClearSearchCommand}"
+                  IsVisible="{Binding HasSearchText}"
+                  Background="Transparent" Padding="6,2"
+                  ToolTip.Tip="Clear search">
+            <TextBlock Text="✕" FontSize="12" />
+          </Button>
+        </TextBox.InnerRightContent>
+      </TextBox>
+      <ToggleButton Grid.Column="1" Margin="8,0,0,0"
+                    IsChecked="{Binding ShowModifiedOnly}"
+                    ToolTip.Tip="Show only the settings set in the user configuration file">
+        <TextBlock Text="Modified" VerticalAlignment="Center" />
+      </ToggleButton>
+      <TextBlock Grid.Column="2" Classes="secondary" Margin="12,0,0,0"
+                 VerticalAlignment="Center"
+                 Text="{Binding ResultSummary}" />
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="220,4,*" Margin="0,6,0,0">
+
+      <!-- Category tree -->
+      <TreeView Grid.Column="0"
+                ItemsSource="{Binding Categories}"
+                SelectedItem="{Binding SelectedCategory}"
+                Margin="8,0,0,0">
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem" x:DataType="vm:SettingCategoryViewModel">
+            <Setter Property="IsExpanded" Value="True" />
+            <Setter Property="IsVisible" Value="{Binding HasMatches}" />
+          </Style>
+        </TreeView.Styles>
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate x:DataType="vm:SettingCategoryViewModel"
+                            ItemsSource="{Binding Children}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+              <TextBlock Grid.Column="1" Classes="secondary" Margin="8,0,0,0"
+                         Text="{Binding MatchCount}" />
+            </Grid>
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+      </TreeView>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+      <!-- Settings list -->
+      <controls:PropertyInspector Grid.Column="2"
+                                  Items="{Binding Items}"
+                                  FilterText="{Binding SearchText}"
+                                  CategoryFilter="{Binding SelectedCategoryPath}"
+                                  ShowModifiedOnly="{Binding ShowModifiedOnly}"
+                                  EditorRegistry="{Binding EditorRegistry}"
+                                  EmptyText="No settings available. Plugins declare settings with [UserConfiguration]." />
+    </Grid>
+
+    <!-- Footer: file location and save errors -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="12,6,12,8">
+      <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasError}">
+        <TextBlock Text="⚠" VerticalAlignment="Center" Foreground="OrangeRed" />
+        <TextBlock Text="{Binding ErrorMessage}" Foreground="OrangeRed"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+      <TextBlock Grid.Column="1" Classes="secondary" FontSize="11"
+                 VerticalAlignment="Center"
+                 Text="{Binding FilePath}" ToolTip.Tip="User configuration file" />
+    </Grid>
+
+  </Grid>
+
+</UserControl>

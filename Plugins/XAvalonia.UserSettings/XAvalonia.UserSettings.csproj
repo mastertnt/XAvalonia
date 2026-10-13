@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>XAvalonia.UserSettings</AssemblyName>
+    <RootNamespace>XAvalonia.UserSettings</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageDescription>XAvalonia settings editor plugin — browse, search and edit the user configuration declared by plugins, in the spirit of the Visual Studio Code settings editor.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Dock.Avalonia" Version="11.3.11.22" />
+    <PackageReference Include="Dock.Model.ReactiveUI" Version="11.3.11.22" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\XAvalonia.Shell.Abstractions\XAvalonia.Shell.Abstractions.csproj" />
+    <ProjectReference Include="..\..\XAvalonia.Controls\XAvalonia.Controls.csproj" />
+  </ItemGroup>
+
+</Project>

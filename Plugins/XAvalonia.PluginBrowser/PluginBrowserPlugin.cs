@@ -21,6 +21,12 @@ public sealed class PluginBrowserPlugin : IPlugin
     private ILogService? mLog;
     private PluginBrowserViewModel? mViewModel;
 
+    /// <summary>Whether the browser queries NuGet for newer versions. Populated from <c>user_configuration.json → PluginBrowser → checkForUpdates</c>.</summary>
+    [UserConfiguration("checkForUpdates",
+        DisplayName = "Check for Updates",
+        Description = "Query NuGet for newer plugin versions when the Plugin Browser opens.")]
+    public bool CheckForUpdates { get; set; } = true;
+
     /// <inheritdoc/>
     public string Id => "org.avaloniaui.shell.plugin-browser";
 
@@ -103,7 +109,7 @@ public sealed class PluginBrowserPlugin : IPlugin
         }
 
         mLog?.LogInfo($"[{Name}] OpenBrowser: creating and registering new ViewModel.");
-        mViewModel = new PluginBrowserViewModel(mPluginManager!);
+        mViewModel = new PluginBrowserViewModel(mPluginManager!, CheckForUpdates);
         try
         {
             mDocumentService.RegisterDocument(new DocumentContribution(

@@ -12,12 +12,14 @@ namespace PluginBrowser.ViewModels;
 public sealed class PluginBrowserViewModel : Document
 {
     private readonly IPluginManager mPluginManager;
+    private readonly bool mCheckForUpdates;
     private bool mIsLoadingVersions;
     private PluginViewModel? mSelectedPlugin;
 
     /// <summary>Initializes the view model and builds the initial plugin list.</summary>
     /// <param name="pPluginManager">The plugin manager to read plugins from.</param>
-    public PluginBrowserViewModel(IPluginManager pPluginManager)
+    /// <param name="pCheckForUpdates">Whether <see cref="LoadAvailableVersionsAsync"/> queries NuGet.</param>
+    public PluginBrowserViewModel(IPluginManager pPluginManager, bool pCheckForUpdates = true)
     {
         Id    = "plugin-browser";
         Title = "Plugin Browser";
@@ -29,6 +31,7 @@ public sealed class PluginBrowserViewModel : Document
         };
 
         mPluginManager = pPluginManager;
+        mCheckForUpdates = pCheckForUpdates;
         Plugins = pPluginManager.Plugins
             .Select(pP => new PluginViewModel(pP, pPluginManager.GetConsumedServices(pP.Id)))
             .ToList();
@@ -58,6 +61,16 @@ public sealed class PluginBrowserViewModel : Document
     /// <param name="pCancellationToken">Token used to cancel the operation.</param>
     public async Task LoadAvailableVersionsAsync(CancellationToken pCancellationToken = default)
     {
+        if (!mCheckForUpdates)
+        {
+            foreach (PluginViewModel lVm in Plugins)
+            {
+                lVm.AvailableVersion = "not checked";
+            }
+
+            return;
+        }
+
         IsLoadingVersions = true;
 
         try

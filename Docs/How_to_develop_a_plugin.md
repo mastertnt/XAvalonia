@@ -131,6 +131,8 @@ Every resolved service is automatically recorded and shown in the Plugin Browser
 | `IPluginManager` | Shell.Abstractions | Enumerate plugins, check updates |
 | `ILogService` | Shell.Abstractions | Emit and receive log messages |
 | `ISelectionManager` | Shell.Abstractions | Share the current selection through global and local contexts |
+| `IUserConfiguration` | Shell.Abstractions | Read and change the user settings declared with `[UserConfiguration]` |
+| `IPropertyEditorRegistry` | Shell.Abstractions | Register editors per data type for `PropertyInspector` controls |
 
 ---
 
