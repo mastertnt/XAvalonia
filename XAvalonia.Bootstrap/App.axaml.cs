@@ -9,13 +9,16 @@ using XAvalonia.Shell.Abstractions.Shell;
 
 namespace XAvalonia.Bootstrap;
 
+/// <summary>Avalonia application that initializes the plugins and shows the shell main window.</summary>
 public partial class App : Application
 {
+    /// <inheritdoc/>
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>Initializes the plugins, then creates the main window and attaches its lifecycle events.</summary>
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lDesktop)

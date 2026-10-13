@@ -5,7 +5,7 @@ namespace XAvalonia.Shell.Abstractions.ToolPanels;
 /// All parameters are typed as <see cref="object"/> so this abstraction has no
 /// dependency on Dock.Avalonia. At runtime they must be:
 /// <list type="bullet">
-///   <item><paramref name="pFactory"/> — a <c>Dock.Model.Core.IFactory</c></item>
+///   <item><c>pFactory</c> — a <c>Dock.Model.Core.IFactory</c></item>
 ///   <item>dock parameters — <c>Dock.Model.Core.IDock</c> instances (may be null if a zone is absent)</item>
 /// </list>
 /// </summary>

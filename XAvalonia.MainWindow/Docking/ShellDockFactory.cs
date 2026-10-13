@@ -30,6 +30,8 @@ public class ShellDockFactory : Factory
     /// <summary>The bottom tool dock. Available after layout creation.</summary>
     public ToolDock? BottomDock => mBottomDock;
 
+    /// <summary>Creates the default shell layout: an empty document dock surrounded by left, right and bottom tool docks.</summary>
+    /// <returns>The root dock of the new layout.</returns>
     public override IRootDock CreateLayout()
     {
         // DocumentDock starts empty; documents are contributed by plugins via IDocumentService.
@@ -124,6 +126,8 @@ public class ShellDockFactory : Factory
         return lRootDock;
     }
 
+    /// <summary>Registers the host window and dockable locators, then initializes <paramref name="pLayout"/>.</summary>
+    /// <param name="pLayout">The layout to initialize.</param>
     public override void InitLayout(IDockable pLayout)
     {
         HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>
