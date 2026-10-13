@@ -4,6 +4,7 @@ using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Icons;
 using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Properties;
 using XAvalonia.Shell.Abstractions.Selection;
 using XAvalonia.Shell.Abstractions.Shell;
 using XAvalonia.Shell.Abstractions.Splashscreen;
@@ -44,6 +45,11 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         Description = "Insert a tab character when pressing Tab instead of moving the focus to the next control.")]
     public bool EditorAcceptsTab { get; set; } = true;
 
+    /// <summary>Background color of the sample documents; edited with the custom <see cref="ColorPropertyEditor"/>.</summary>
+    [UserConfiguration("editor.background", DisplayName = "Background", Category = EditorCategory, Order = 50,
+        Description = "Background color of the sample documents. Edited with a custom editor registered by the Sample Views plugin.")]
+    public Color EditorBackground { get; set; } = Colors.Transparent;
+
     /// <inheritdoc/>
     public string Id => "org.avaloniaui.shell.sample-views";
 
@@ -77,6 +83,9 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         lLog?.LogDebug($"[{Name}] Requesting IDocumentService…");
         IDocumentService lDocumentService = pServiceManager.RequestService<IDocumentService>();
         lLog?.LogDebug($"[{Name}] IDocumentService acquired.");
+
+        // Custom editor example: Color settings get a swatch + hex + presets editor in every PropertyInspector.
+        pServiceManager.TryRequestService<IPropertyEditorRegistry>()?.Register<Color>(new ColorPropertyEditor());
 
         ApplyEditorSettings();
         IUserConfiguration? lUserConfiguration = pServiceManager.TryRequestService<IUserConfiguration>();
@@ -147,6 +156,7 @@ public sealed class XAvaloniaSampleViewsPlugin : IPlugin
         mEditorSettings.FontSize   = EditorFontSize;
         mEditorSettings.WordWrap   = EditorWordWrap;
         mEditorSettings.AcceptsTab = EditorAcceptsTab;
+        mEditorSettings.Background = new SolidColorBrush(EditorBackground);
         mEditorSettings.FontFamily = string.IsNullOrWhiteSpace(EditorFontFamily)
             ? FontFamily.Default
             : FontFamily.Parse(EditorFontFamily);

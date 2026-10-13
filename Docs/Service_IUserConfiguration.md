@@ -29,7 +29,8 @@ public sealed class MyEditorPlugin : IPlugin
 }
 ```
 
-Supported types: `string`, `bool`, `int`, `double`, their nullable forms, and enums (stored by name).
+Supported types: `string`, `bool`, `int`, `double`, their nullable forms, enums (stored by name), and any type
+convertible from a string, through a `TypeConverter` or a public static `Parse(string)` (e.g. `TimeSpan`, `Guid`, Avalonia's `Color`), stored as a string.
 The value of the property **before** the file is applied is recorded as the setting's default value, used by "Reset to default".
 
 The section in the file is the plugin class name without the `Plugin` suffix, or the `[ConfigurationSection]` name:
@@ -104,6 +105,6 @@ A plugin that reads its settings only in `Initialize` simply takes changes into 
 - Category tree on the left, with the number of matching settings per category; **All Settings** lists everything.
 - Search box: every word must match the title, key, category or description; categories without matches are hidden.
 - **Modified** toggle: only the settings set in the file.
-- One editor per type: check box (`bool`), numeric up-down (`int`, `double`), text box (`string`, saved on focus loss), combo box (enums).
+- The list is a [PropertyInspector](Control_PropertyInspector.md): one editor per type, check box (`bool`), numeric up-down (`int`, `double`), text box (`string`, saved on Enter or focus loss), combo box (enums), and any editor a plugin registered in `IPropertyEditorRegistry` for its own types.
 - Modified settings show an accent bar and a ↺ button that resets them.
 - Changes are saved immediately; the file path and save errors are shown at the bottom.

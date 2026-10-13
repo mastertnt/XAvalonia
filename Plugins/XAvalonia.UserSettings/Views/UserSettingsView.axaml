@@ -1,25 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:XAvalonia.UserSettings.ViewModels"
+             xmlns:controls="using:XAvalonia.Controls"
              x:Class="XAvalonia.UserSettings.Views.UserSettingsView"
              x:DataType="vm:UserSettingsViewModel">
 
   <UserControl.Styles>
     <Style Selector="TextBlock.secondary">
       <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-    </Style>
-    <!-- Modified indicator: accent bar on the left of the row, as in VS Code. -->
-    <Style Selector="Border.setting">
-      <Setter Property="BorderThickness" Value="3,0,0,0" />
-      <Setter Property="BorderBrush" Value="Transparent" />
-      <Setter Property="Padding" Value="12,8,12,10" />
-      <Setter Property="CornerRadius" Value="2" />
-    </Style>
-    <Style Selector="Border.setting.modified">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-    </Style>
-    <Style Selector="Border.setting:pointerover">
-      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundListLowBrush}" />
     </Style>
   </UserControl.Styles>
 
@@ -77,79 +65,13 @@
       <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
 
       <!-- Settings list -->
-      <Grid Grid.Column="2">
-        <TextBlock Classes="secondary" Margin="16"
-                   IsVisible="{Binding HasNoResults}"
-                   Text="{Binding EmptyMessage}" />
-
-        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-          <ItemsControl ItemsSource="{Binding VisibleSettings}" Margin="4,0,12,12">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:SettingViewModel">
-                <Border Classes="setting" Classes.modified="{Binding IsModified}" Margin="0,0,0,4">
-                  <StackPanel Spacing="4">
-
-                    <Grid ColumnDefinitions="Auto,*,Auto">
-                      <StackPanel Orientation="Horizontal" ToolTip.Tip="{Binding FullKey}">
-                        <TextBlock Text="{Binding Breadcrumb}" />
-                        <TextBlock Text=": " />
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                      </StackPanel>
-                      <Button Grid.Column="2"
-                              Command="{Binding ResetCommand}"
-                              IsVisible="{Binding IsModified}"
-                              Background="Transparent" Padding="4,0" Margin="0,-4"
-                              ToolTip.Tip="Reset to default">
-                        <TextBlock Text="↺" FontSize="14" />
-                      </Button>
-                    </Grid>
-
-                    <TextBlock Classes="secondary"
-                               Text="{Binding Description}"
-                               IsVisible="{Binding ShowDescription}"
-                               TextWrapping="Wrap" />
-
-                    <ContentControl Content="{Binding}" Margin="0,2,0,0">
-                      <ContentControl.DataTemplates>
-
-                        <DataTemplate x:DataType="vm:BoolSettingViewModel">
-                          <CheckBox IsChecked="{Binding Value}"
-                                    IsThreeState="{Binding IsThreeState}">
-                            <TextBlock Text="{Binding CheckBoxLabel}" TextWrapping="Wrap"
-                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                          </CheckBox>
-                        </DataTemplate>
-
-                        <DataTemplate x:DataType="vm:NumberSettingViewModel">
-                          <NumericUpDown Value="{Binding Value}"
-                                         Minimum="{Binding Minimum}"
-                                         Maximum="{Binding Maximum}"
-                                         FormatString="{Binding FormatString}"
-                                         Increment="1"
-                                         Width="180" HorizontalAlignment="Left" />
-                        </DataTemplate>
-
-                        <DataTemplate x:DataType="vm:TextSettingViewModel">
-                          <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
-                                   MaxWidth="480" HorizontalAlignment="Stretch" />
-                        </DataTemplate>
-
-                        <DataTemplate x:DataType="vm:ChoiceSettingViewModel">
-                          <ComboBox ItemsSource="{Binding Choices}"
-                                    SelectedItem="{Binding Value}"
-                                    MinWidth="180" />
-                        </DataTemplate>
-
-                      </ContentControl.DataTemplates>
-                    </ContentControl>
-
-                  </StackPanel>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
-      </Grid>
+      <controls:PropertyInspector Grid.Column="2"
+                                  Items="{Binding Items}"
+                                  FilterText="{Binding SearchText}"
+                                  CategoryFilter="{Binding SelectedCategoryPath}"
+                                  ShowModifiedOnly="{Binding ShowModifiedOnly}"
+                                  EditorRegistry="{Binding EditorRegistry}"
+                                  EmptyText="No settings available. Plugins declare settings with [UserConfiguration]." />
     </Grid>
 
     <!-- Footer: file location and save errors -->

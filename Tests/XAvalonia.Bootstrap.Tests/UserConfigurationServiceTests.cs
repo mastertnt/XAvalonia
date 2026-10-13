@@ -121,6 +121,27 @@ public sealed class UserConfigurationServiceTests : IDisposable
         Assert.Empty(lService.Settings);
     }
 
+    [Fact]
+    public void StringConvertibleTypes_AreReadAndWrittenAsStrings()
+    {
+        WriteFile("""{ "Theme": { "accent": "#FF102030", "delay": "00:00:05" } }""");
+        UserConfigurationService lService = new UserConfigurationService(FilePath);
+        ThemePlugin lPlugin = new ThemePlugin();
+        lService.RegisterPlugin(lPlugin);
+
+        Assert.Equal(Avalonia.Media.Color.Parse("#FF102030"), lPlugin.Accent);
+        Assert.Equal(TimeSpan.FromSeconds(5), lPlugin.Delay);
+
+        lService.SetValue(Get(lService, "accent"), Avalonia.Media.Colors.Red);
+        lService.SetValue(Get(lService, "delay"), "00:01:00");
+
+        Assert.Equal(TimeSpan.FromMinutes(1), lPlugin.Delay);
+        JsonNode lSaved = JsonNode.Parse(File.ReadAllText(FilePath))!;
+        Assert.Equal(Avalonia.Media.Colors.Red, Avalonia.Media.Color.Parse(lSaved["Theme"]!["accent"]!.GetValue<string>()));
+        Assert.Equal("00:01:00", lSaved["Theme"]!["delay"]!.GetValue<string>());
+        Assert.Throws<ArgumentException>(() => lService.SetValue(Get(lService, "accent"), "not a color"));
+    }
+
     [Theory]
     [InlineData("fontSize", "Font Size")]
     [InlineData("editor.word_wrap", "Editor Word Wrap")]
@@ -140,6 +161,24 @@ public sealed class UserConfigurationServiceTests : IDisposable
     }
 
     public enum Wrapping { NoWrap, Wrap }
+
+    private sealed class ThemePlugin : IPlugin
+    {
+        [UserConfiguration("accent")]
+        public Avalonia.Media.Color Accent { get; set; } = Avalonia.Media.Colors.Blue;
+
+        [UserConfiguration("delay")]
+        public TimeSpan Delay { get; set; } = TimeSpan.FromSeconds(1);
+
+        public string Id => "test.theme";
+        public string Name => "Theme";
+        public string Description => string.Empty;
+        public Version CurrentVersion => new Version(1, 0);
+        public string? NuGetPackageId => null;
+        public IReadOnlyList<Type> ProvidedServices => Array.Empty<Type>();
+        public void RegisterServices(IServiceCollection pServices) { }
+        public void Initialize(IPluginServiceManager pServiceManager) { }
+    }
 
     [ConfigurationSection("Editor")]
     private sealed class EditorPlugin : IPlugin

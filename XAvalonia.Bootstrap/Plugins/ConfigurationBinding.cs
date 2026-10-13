@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
@@ -32,7 +33,45 @@ internal static class ConfigurationBinding
     {
         Type lType = Nullable.GetUnderlyingType(pType) ?? pType;
         return lType == typeof(string) || lType == typeof(int) || lType == typeof(double)
-            || lType == typeof(bool) || lType.IsEnum;
+            || lType == typeof(bool) || lType.IsEnum || TryGetParser(lType) is not null;
+    }
+
+    // Other types are stored as strings: through their TypeConverter, or a public static Parse(string)
+    // (e.g. TimeSpan, Guid, Version, Avalonia's Color); ToString / ConvertToInvariantString writes them back.
+    private static Func<string, object?>? TryGetParser(Type pType)
+    {
+        TypeConverter lConverter = TypeDescriptor.GetConverter(pType);
+        if (lConverter.CanConvertFrom(typeof(string)))
+        {
+            return pText => lConverter.ConvertFromInvariantString(pText);
+        }
+
+        MethodInfo? lParse = pType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, new[] { typeof(string) });
+        if (lParse is not null && pType.IsAssignableFrom(lParse.ReturnType))
+        {
+            return pText => lParse.Invoke(null, new object[] { pText });
+        }
+
+        return null;
+    }
+
+    private static object? ParseString(Type pType, string? pText)
+    {
+        Func<string, object?>? lParser = pText is null ? null : TryGetParser(pType);
+        if (lParser is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return lParser(pText!);
+        }
+        catch (Exception lEx) when (lEx is FormatException or ArgumentException or NotSupportedException
+                                    or TargetInvocationException { InnerException: FormatException or ArgumentException })
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -57,6 +96,11 @@ internal static class ConfigurationBinding
                 && Enum.TryParse(lType, pValue.GetString(), true, out object? lEnumValue))
             {
                 return lEnumValue;
+            }
+
+            if (pValue.ValueKind == JsonValueKind.String)
+            {
+                return ParseString(lType, pValue.GetString());
             }
         }
         catch (Exception lEx) when (lEx is InvalidOperationException or FormatException)
@@ -99,6 +143,12 @@ internal static class ConfigurationBinding
                     : Enum.ToObject(lType, pValue);
             }
 
+            if (pValue is string lText && !lType.IsPrimitive)
+            {
+                return ParseString(lType, lText)
+                    ?? throw new ArgumentException($"'{lText}' is not a valid {lType.Name}.", nameof(pValue));
+            }
+
             return Convert.ChangeType(pValue, lType, CultureInfo.InvariantCulture);
         }
         catch (Exception lEx) when (lEx is InvalidCastException or FormatException or OverflowException or ArgumentException)
@@ -118,7 +168,7 @@ internal static class ConfigurationBinding
             int lInt      => JsonValue.Create(lInt),
             double lDbl   => JsonValue.Create(lDbl),
             Enum lEnum    => JsonValue.Create(lEnum.ToString()),
-            _             => JsonValue.Create(pValue.ToString()),
+            _             => JsonValue.Create(TypeDescriptor.GetConverter(pValue.GetType()).ConvertToInvariantString(pValue)),
         };
     }
 

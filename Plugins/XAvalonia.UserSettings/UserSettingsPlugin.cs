@@ -4,6 +4,7 @@ using XAvalonia.Shell.Abstractions.Documents;
 using XAvalonia.Shell.Abstractions.Logging;
 using XAvalonia.Shell.Abstractions.Menus;
 using XAvalonia.Shell.Abstractions.Plugins;
+using XAvalonia.Shell.Abstractions.Properties;
 using XAvalonia.Shell.Abstractions.Shell;
 using XAvalonia.UserSettings.ViewModels;
 
@@ -22,6 +23,7 @@ public sealed class UserSettingsPlugin : IPlugin
 
     private IUserConfiguration? mUserConfiguration;
     private IDocumentService? mDocumentService;
+    private IPropertyEditorRegistry? mEditorRegistry;
     private ILogService? mLog;
     private UserSettingsViewModel? mViewModel;
 
@@ -58,6 +60,7 @@ public sealed class UserSettingsPlugin : IPlugin
 
         mUserConfiguration = pServiceManager.RequestService<IUserConfiguration>();
         mDocumentService   = pServiceManager.RequestService<IDocumentService>();
+        mEditorRegistry    = pServiceManager.TryRequestService<IPropertyEditorRegistry>();
         IMenuService lMenuService = pServiceManager.RequestService<IMenuService>();
 
         RegisterMenuItems(lMenuService);
@@ -108,7 +111,7 @@ public sealed class UserSettingsPlugin : IPlugin
         }
 
         mViewModel?.Detach();
-        mViewModel = new UserSettingsViewModel(mUserConfiguration!);
+        mViewModel = new UserSettingsViewModel(mUserConfiguration!, mEditorRegistry);
         mDocumentService.RegisterDocument(new DocumentContribution(
             pId: DocumentId,
             pTitle: "Settings",

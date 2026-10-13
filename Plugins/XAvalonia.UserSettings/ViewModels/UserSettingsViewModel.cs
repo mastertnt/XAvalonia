@@ -5,18 +5,20 @@ using CommunityToolkit.Mvvm.Input;
 using Dock.Model.Core;
 using Dock.Model.ReactiveUI.Controls;
 using ReactiveUI;
+using XAvalonia.Controls;
+using XAvalonia.Shell.Abstractions.Properties;
 using XAvalonia.Shell.Abstractions.Shell;
 
 namespace XAvalonia.UserSettings.ViewModels;
 
 /// <summary>
-/// View model for the settings editor document tab: a category tree, a search box,
-/// and the list of matching settings, each with an editor bound to <see cref="IUserConfiguration"/>.
+/// View model for the settings editor document tab: a category tree, a search box and the
+/// settings themselves, displayed and edited by a <c>PropertyInspector</c>.
 /// </summary>
 public sealed class UserSettingsViewModel : Document
 {
     private readonly IUserConfiguration mConfiguration;
-    private readonly List<SettingViewModel> mAllSettings;
+    private readonly List<UserSettingItem> mItems;
     private readonly SettingCategoryViewModel mAllNode;
     private SettingCategoryViewModel? mSelectedCategory;
     private string mSearchText = string.Empty;
@@ -26,7 +28,8 @@ public sealed class UserSettingsViewModel : Document
 
     /// <summary>Initializes the editor from the settings currently declared by plugins.</summary>
     /// <param name="pConfiguration">The user configuration to display and edit.</param>
-    public UserSettingsViewModel(IUserConfiguration pConfiguration)
+    /// <param name="pEditorRegistry">Editors used by the inspector; <c>null</c> for the built-in ones.</param>
+    public UserSettingsViewModel(IUserConfiguration pConfiguration, IPropertyEditorRegistry? pEditorRegistry)
     {
         Id    = "user-settings";
         Title = "Settings";
@@ -38,13 +41,14 @@ public sealed class UserSettingsViewModel : Document
         };
 
         mConfiguration = pConfiguration;
-        mAllSettings = pConfiguration.Settings
-            .Select(CreateRow)
-            .OfType<SettingViewModel>()
+        EditorRegistry = pEditorRegistry;
+        mItems = pConfiguration.Settings
+            .Select(pS => new UserSettingItem(pS, pConfiguration, pMessage => ErrorMessage = pMessage))
             .ToList();
+        Items = mItems;
 
         mAllNode = new SettingCategoryViewModel("All Settings", string.Empty);
-        Categories = BuildCategoryTree(mAllNode, mAllSettings);
+        Categories = BuildCategoryTree(mAllNode, mItems.Select(pI => pI.Category));
         mSelectedCategory = mAllNode;
 
         ClearSearchCommand = new RelayCommand(() => SearchText = string.Empty);
@@ -53,14 +57,17 @@ public sealed class UserSettingsViewModel : Document
         ApplyFilter();
     }
 
+    /// <summary>Settings shown by the inspector.</summary>
+    public IReadOnlyList<IPropertyItem> Items { get; }
+
+    /// <summary>Editors used by the inspector; <c>null</c> for the built-in ones.</summary>
+    public IPropertyEditorRegistry? EditorRegistry { get; }
+
     /// <summary>Root nodes of the category tree; the first one shows every setting.</summary>
     public ObservableCollection<SettingCategoryViewModel> Categories { get; }
 
-    /// <summary>Settings matching the selected category, the search text and the "modified" filter.</summary>
-    public ObservableCollection<SettingViewModel> VisibleSettings { get; } = new ObservableCollection<SettingViewModel>();
-
     /// <summary>Number of settings declared by plugins.</summary>
-    public int TotalCount => mAllSettings.Count;
+    public int TotalCount => mItems.Count;
 
     /// <summary>Full path of the user configuration file.</summary>
     public string FilePath => mConfiguration.FilePath;
@@ -68,16 +75,26 @@ public sealed class UserSettingsViewModel : Document
     /// <summary>Clears the search box.</summary>
     public ICommand ClearSearchCommand { get; }
 
-    /// <summary>Selected category; <c>null</c> behaves like "All Settings".</summary>
+    /// <summary>Selected category in the tree.</summary>
     public SettingCategoryViewModel? SelectedCategory
     {
         get => mSelectedCategory;
         set
         {
+            // The tree clears its selection while it is detached (e.g. when switching tabs): keep ours,
+            // otherwise re-selecting "All Settings" would feed back into the tree endlessly.
+            if (value is null || ReferenceEquals(value, mSelectedCategory))
+            {
+                return;
+            }
+
             this.RaiseAndSetIfChanged(ref mSelectedCategory, value);
             ApplyFilter();
         }
     }
+
+    /// <summary>Path of the selected category, passed to the inspector; empty for "All Settings".</summary>
+    public string SelectedCategoryPath => mSelectedCategory?.Path ?? string.Empty;
 
     /// <summary>Space-separated search terms; every term must match.</summary>
     public string SearchText
@@ -105,20 +122,12 @@ public sealed class UserSettingsViewModel : Document
         }
     }
 
-    /// <summary>Summary shown above the list (e.g. <c>3 settings found</c>).</summary>
+    /// <summary>Summary shown next to the search box (e.g. <c>3 settings</c>).</summary>
     public string ResultSummary
     {
         get => mResultSummary;
         private set => this.RaiseAndSetIfChanged(ref mResultSummary, value);
     }
-
-    /// <summary>Message shown when the list is empty.</summary>
-    public string EmptyMessage => mAllSettings.Count == 0
-        ? "No settings available. Plugins declare settings with [UserConfiguration]."
-        : "No settings match the current filters.";
-
-    /// <summary>Whether no setting matches the current filters.</summary>
-    public bool HasNoResults => VisibleSettings.Count == 0;
 
     /// <summary>Last error raised while saving a setting, or <c>null</c>.</summary>
     public string? ErrorMessage
@@ -140,26 +149,14 @@ public sealed class UserSettingsViewModel : Document
         mConfiguration.SettingChanged -= OnSettingChanged;
     }
 
-    private SettingViewModel? CreateRow(UserSettingDescriptor pSetting)
-    {
-        Type lType = Nullable.GetUnderlyingType(pSetting.ValueType) ?? pSetting.ValueType;
-        Action<string?> lReportError = pMessage => ErrorMessage = pMessage;
-
-        if (lType == typeof(bool))                         return new BoolSettingViewModel(pSetting, mConfiguration, lReportError);
-        if (lType == typeof(int) || lType == typeof(double)) return new NumberSettingViewModel(pSetting, mConfiguration, lReportError);
-        if (lType == typeof(string))                       return new TextSettingViewModel(pSetting, mConfiguration, lReportError);
-        if (lType.IsEnum)                                  return new ChoiceSettingViewModel(pSetting, mConfiguration, lReportError);
-        return null;
-    }
-
     // Builds "All Settings" followed by one root per first category segment, nested by '/'.
     private static ObservableCollection<SettingCategoryViewModel> BuildCategoryTree(
-        SettingCategoryViewModel pAllNode, IEnumerable<SettingViewModel> pSettings)
+        SettingCategoryViewModel pAllNode, IEnumerable<string> pCategories)
     {
         ObservableCollection<SettingCategoryViewModel> lRoots = new ObservableCollection<SettingCategoryViewModel> { pAllNode };
         ObservableCollection<SettingCategoryViewModel> lCategories = new ObservableCollection<SettingCategoryViewModel>();
 
-        foreach (string lCategory in pSettings.Select(pS => pS.Setting.Category).Distinct(StringComparer.CurrentCultureIgnoreCase))
+        foreach (string lCategory in pCategories.Distinct(StringComparer.CurrentCultureIgnoreCase))
         {
             ObservableCollection<SettingCategoryViewModel> lLevel = lCategories;
             string lPath = string.Empty;
@@ -186,42 +183,39 @@ public sealed class UserSettingsViewModel : Document
         return lRoots;
     }
 
+    // Updates the per-category counts and the summary; the inspector applies the same filters to its rows.
     private void ApplyFilter()
     {
-        string[] lTerms = mSearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        List<SettingViewModel> lMatches = mAllSettings
-            .Where(pS => (!mShowModifiedOnly || pS.IsModified) && pS.Matches(lTerms))
+        IReadOnlyList<string> lTerms = PropertyItemFilter.SplitTerms(mSearchText);
+        List<UserSettingItem> lMatches = mItems
+            .Where(pI => (!mShowModifiedOnly || pI.IsModified) && PropertyItemFilter.Matches(pI, lTerms))
             .ToList();
 
         foreach (SettingCategoryViewModel lNode in Categories.SelectMany(pN => pN.SelfAndDescendants()))
         {
-            lNode.MatchCount = lMatches.Count(pS => lNode.Contains(pS.Setting.Category));
+            lNode.MatchCount = lMatches.Count(pI => lNode.Contains(pI.Category));
         }
 
         // A search that leaves the selected category empty falls back to "All Settings", as in VS Code.
-        if (mSelectedCategory is null || !mSelectedCategory.HasMatches)
+        if (mSelectedCategory is null || (!mSelectedCategory.HasMatches && !ReferenceEquals(mSelectedCategory, mAllNode)))
         {
             mSelectedCategory = mAllNode;
             this.RaisePropertyChanged(nameof(SelectedCategory));
         }
 
-        SettingCategoryViewModel lCategory = mSelectedCategory;
-        VisibleSettings.Clear();
-        foreach (SettingViewModel lSetting in lMatches.Where(pS => lCategory.Contains(pS.Setting.Category)))
-        {
-            VisibleSettings.Add(lSetting);
-        }
+        this.RaisePropertyChanged(nameof(SelectedCategoryPath));
 
-        ResultSummary = VisibleSettings.Count switch
+        SettingCategoryViewModel lCategory = mSelectedCategory;
+        int lVisible = lMatches.Count(pI => lCategory.Contains(pI.Category));
+        ResultSummary = lVisible switch
         {
             0 => "No settings found",
             1 => "1 setting",
-            _ => $"{VisibleSettings.Count} settings",
+            _ => $"{lVisible} settings",
         };
-        this.RaisePropertyChanged(nameof(HasNoResults));
     }
 
-    // Keeps rows in sync when a setting is changed elsewhere (another editor, a plugin, a reset).
+    // Keeps items in sync when a setting is changed elsewhere (another editor, a plugin, a reset).
     private void OnSettingChanged(object? pSender, UserSettingChangedEventArgs pArgs)
     {
         if (!Dispatcher.UIThread.CheckAccess())
@@ -230,6 +224,6 @@ public sealed class UserSettingsViewModel : Document
             return;
         }
 
-        mAllSettings.FirstOrDefault(pS => ReferenceEquals(pS.Setting, pArgs.Setting))?.Refresh();
+        mItems.FirstOrDefault(pI => ReferenceEquals(pI.Setting, pArgs.Setting))?.Refresh();
     }
 }

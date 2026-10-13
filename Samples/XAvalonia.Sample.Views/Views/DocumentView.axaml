@@ -12,6 +12,6 @@
            FontSize="{Binding EditorSettings.FontSize}"
            Margin="4"
            BorderThickness="0"
-           Background="Transparent" />
+           Background="{Binding EditorSettings.Background}" />
 
 </UserControl>

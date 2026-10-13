@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using ReactiveUI;
+using XAvalonia.Controls;
 
 namespace XAvalonia.UserSettings.ViewModels;
 
@@ -43,9 +44,7 @@ public sealed class SettingCategoryViewModel : ReactiveObject
     /// <summary>Returns <c>true</c> when <paramref name="pCategory"/> is this category or one of its children.</summary>
     public bool Contains(string pCategory)
     {
-        return Path.Length == 0
-            || string.Equals(pCategory, Path, StringComparison.CurrentCultureIgnoreCase)
-            || pCategory.StartsWith(Path + "/", StringComparison.CurrentCultureIgnoreCase);
+        return PropertyItemFilter.IsInCategory(pCategory, Path);
     }
 
     /// <summary>Returns this node and all its descendants.</summary>

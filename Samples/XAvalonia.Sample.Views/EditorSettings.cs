@@ -13,6 +13,7 @@ public sealed class EditorSettings : ReactiveObject
     private FontFamily mFontFamily = FontFamily.Parse("Consolas,Menlo,monospace");
     private TextWrapping mWordWrap = TextWrapping.Wrap;
     private bool mAcceptsTab = true;
+    private IBrush mBackground = Brushes.Transparent;
 
     /// <summary>Font size of the documents, in pixels.</summary>
     public double FontSize
@@ -40,5 +41,12 @@ public sealed class EditorSettings : ReactiveObject
     {
         get => mAcceptsTab;
         set => this.RaiseAndSetIfChanged(ref mAcceptsTab, value);
+    }
+
+    /// <summary>Background of the documents.</summary>
+    public IBrush Background
+    {
+        get => mBackground;
+        set => this.RaiseAndSetIfChanged(ref mBackground, value);
     }
 }
